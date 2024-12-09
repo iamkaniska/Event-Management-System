@@ -29,12 +29,30 @@ export default function EventDetails() {
   const handleRegister = async () => {
     try {
       await axios.post('http://localhost:3000/api/registrations', {
-        eventId: id
+        eventId: id,
       });
       toast.success('Successfully registered for the event!');
     } catch (error) {
       console.error('Error registering:', error);
       toast.error(error.response?.data?.message || 'Failed to register');
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/events/download-pdf/${id}`, {
+        responseType: 'blob', // Important for downloading files
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${event.title}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      toast.error('Failed to download PDF');
     }
   };
 
@@ -48,7 +66,15 @@ export default function EventDetails() {
 
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
-      <h1 className="text-3xl font-bold mb-4">{event.title}</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-3xl font-bold">{event.title}</h1>
+        <button
+          onClick={handleDownloadPDF}
+          className="bg-green-600 text-white py-1 px-3 rounded-lg hover:bg-green-700 transition-colors"
+        >
+          Download PDF
+        </button>
+      </div>
       <div className="mb-6">
         <p className="text-gray-600">{event.description}</p>
       </div>
