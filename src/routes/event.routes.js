@@ -8,7 +8,7 @@ router.get('/download-pdf', async (req, res) => {
   try {
     // Fetch events from the database
     const events = await Event.find().select('title description capacity price');
-
+    console.log(events);
     if (!events.length) {
       return res.status(404).json({ message: 'No events found' });
     }
